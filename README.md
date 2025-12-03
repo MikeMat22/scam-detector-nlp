@@ -17,6 +17,9 @@ This AI tool analyzes text messages and predicts whether the message is likely a
 
 ## 🗂️ Project Structure
 
+## 🗂️ Project Structure
+
+```  
 scam-detector-nlp/
 ├── data/
 │   └── messages.csv
@@ -25,6 +28,7 @@ scam-detector-nlp/
 │   └── evaluate.py
 ├── README.md
 └── requirements.txt
+```  
 
 ## 📈 Future Ideas
 
