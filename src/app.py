@@ -1,7 +1,6 @@
 import streamlit as st
 from joblib import load
 import os
-from streamlit_limiter import RateLimiter
 import concurrent.futures
 from PIL import Image
 
