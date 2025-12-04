@@ -1,48 +1,60 @@
-import streamlit as st
-import pandas as pd
-import joblib
 import os
-import time
+import pickle
+import pandas as pd
+import streamlit as st
 import signal
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from datetime import datetime
 
-# Load model and vectorizer
-model = joblib.load(os.path.join("models", "logistic_model.pkl"))
-vectorizer = joblib.load(os.path.join("models", "tfidf_vectorizer.pkl"))
+# === Rate Limiting ===
+if "last_submit_time" not in st.session_state:
+    st.session_state["last_submit_time"] = 0
+cooldown = 10  # seconds
 
-# === Timeout support ===
+# === Timeout Handler ===
 class TimeoutException(Exception):
     pass
 
 def timeout_handler(signum, frame):
-    raise TimeoutException("Prediction timed out")
+    raise TimeoutException
 
-def predict_with_timeout(predict_fn, text, timeout=5):
-    signal.signal(signal.SIGALRM, timeout_handler)
+signal.signal(signal.SIGALRM, timeout_handler)
+
+def predict_with_timeout(predict_fn, user_input, timeout=5):
     signal.alarm(timeout)
     try:
-        result = predict_fn(text)
+        result = predict_fn(user_input)
     finally:
         signal.alarm(0)
     return result
 
+# === Load model and vectorizer ===
+model_path = os.path.join("models", "scam_classifier.pkl")
+vectorizer_path = os.path.join("models", "tfidf_vectorizer.pkl")
+
+with open(model_path, "rb") as f:
+    model = pickle.load(f)
+
+with open(vectorizer_path, "rb") as f:
+    vectorizer = pickle.load(f)
+
+# === Prediction function ===
 def predict(text):
-    X = vectorizer.transform([text])
-    prediction = model.predict(X)[0]
-    return prediction
+    transformed = vectorizer.transform([text])
+    prediction = model.predict(transformed)
+    return prediction[0]
 
-# === UI ===
-st.set_page_config(page_title="Scam Detector", page_icon="🔍")
-st.title("🔍 Scam Message Detector")
-st.markdown("Detect whether a message is a scam using a machine learning model.")
+# === Streamlit UI ===
+st.set_page_config(page_title="Scam Message Detector", layout="centered")
+st.title("🕵️ Scam Message Detector")
+st.markdown("Enter a message to check if it's a **scam** or **not**.")
 
-# === Rate limit: Simple version (1 request per 10 seconds) ===
-now = time.time()
+user_input = st.text_area("Enter your message here:", height=150)
+submitted = st.button("Analyze")
+
+now = datetime.now().timestamp()
 last_submit = st.session_state.get("last_submit_time", 0)
-cooldown = 10
-
-with st.form("scam_form"):
-    user_input = st.text_area("Paste the message you received:", height=150)
-    submitted = st.form_submit_button("Analyze")
 
 if submitted:
     if not user_input.strip():
@@ -61,3 +73,6 @@ if submitted:
                     st.success("✅ This message appears to be **not a scam**.")
             except TimeoutException:
                 st.error("⏱️ The model took too long to respond. Please try again later.")
+
+st.markdown("---")
+st.caption("Made by Michal · [GitHub](https://github.com/MikeMat22/scam-detector-nlp)")
