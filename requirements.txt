@@ -3,4 +3,4 @@ scikit-learn
 joblib
 streamlit
 streamlit-extras
-streamlit-limiter
+
