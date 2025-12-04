@@ -1,39 +1,72 @@
-# 🛡️ AI Scam Message Detector (NLP + scikit-learn)
+# 🕵🏻‍♂️ Scam Detector NLP
 
-This project uses Natural Language Processing to classify short messages as **scam** or **legit** using classic machine learning techniques.
+A simple Natural Language Processing (NLP) project to detect scam messages using machine learning (scikit-learn).
 
-## 🔍 About
+## 🔧 Project Structure
 
-Scam messages and phishing attacks are a growing problem in emails, SMS, and social platforms.  
-This AI tool analyzes text messages and predicts whether the message is likely a scam.
-
-## 🧠 Tech Stack
-
-- Python 3
-- scikit-learn (Logistic Regression)
-- pandas
-- TfidfVectorizer for text preprocessing
-- Dataset: Custom collection of scam vs. non-scam messages
-
-## 🗂️ Project Structure
-
-```  
+```
 scam-detector-nlp/
 ├── data/
-│   └── messages.csv
+│   └── messages.csv            # Training dataset
+├── models/
+│   ├── logistic_model.pkl      # Trained Logistic Regression model
+│   └── tfidf_vectorizer.pkl    # Trained TF-IDF vectorizer
 ├── src/
-│   ├── train.py
-│   └── evaluate.py
-├── README.md
-└── requirements.txt
-```  
+│   ├── train.py                # Script to train the model
+│   └── evaluate.py             # Script to evaluate the model on custom input
+├── app.py                      # Streamlit web interface
+├── static/
+│   └── logo.png                # Optional logo for the UI
+├── requirements.txt           # Required Python packages
+└── README.md                  # Project documentation
+```
 
-## 📈 Future Ideas
+## 🧪 How to Use Locally
 
-- Deploy as an API
-- Build web frontend (e.g. Streamlit or Flask)
-- Train more advanced models (e.g. LSTM, Transformers)
+1. Clone the repository:
+```bash
+git clone https://github.com/MikeMat22/scam-detector-nlp.git
+cd scam-detector-nlp
+```
 
-## 📬 Author
+2. Create and activate a virtual environment (recommended):
+```bash
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+```
 
-[Michal Matějček](https://www.linkedin.com/in/michal-matejcek/)
+3. Install required packages:
+```bash
+pip install -r requirements.txt
+```
+
+4. Train the model:
+```bash
+python src/train.py
+```
+
+5. Run the app:
+```bash
+streamlit run app.py
+```
+
+## 🚀 Live Demo
+
+Try the deployed version here:
+👉 (https://scam-detector-nlp.onrender.com)
+
+## 📂 Dataset
+The training data is in `data/messages.csv` with the format:
+```
+message,label
+"Your package has been held...",scam
+"Hey, just checking in...",not-scam
+```
+
+## 👨‍💻 Author
+LinkedIn: [Michal Matejcek](https://www.linkedin.com/in/michal-matejcek/)
+
+---
+
+✅ Built with scikit-learn + Streamlit
+💡 Educational project by an aspiring AI Engineer
