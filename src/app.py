@@ -1,57 +1,57 @@
 import streamlit as st
-from joblib import load
+import pandas as pd
+import joblib
 import os
-import concurrent.futures
-from PIL import Image
+import signal
+from streamlit_extras.rate_limiter import rate_limit
 
-# Rate limit: 5 requests per minute per IP
-RateLimiter(limit=5, period=60)
+# Load the model and vectorizer
+model = joblib.load(os.path.join("models", "logistic_model.pkl"))
+vectorizer = joblib.load(os.path.join("models", "tfidf_vectorizer.pkl"))
 
-# Load model and vectorizer
-MODEL_PATH = "models/logistic_model.pkl"
-VECTORIZER_PATH = "models/tfidf_vectorizer.pkl"
+# Timeout handler
+class TimeoutException(Exception):
+    pass
 
-model = load(MODEL_PATH)
-vectorizer = load(VECTORIZER_PATH)
+def timeout_handler(signum, frame):
+    raise TimeoutException("Prediction timed out")
 
-# Timeout prediction wrapper
-def predict_with_timeout(predict_fn, args, timeout=5):
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future = executor.submit(predict_fn, *args)
-        try:
-            return future.result(timeout=timeout)
-        except concurrent.futures.TimeoutError:
-            return "⚠️ Prediction timeout exceeded!"
+# Function to make prediction with timeout
+@rate_limit(limit=5, period=60)  # Max 5 requests per minute
+def predict_with_timeout(predict_fn, text, timeout=5):
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(timeout)
+    try:
+        result = predict_fn(text)
+    finally:
+        signal.alarm(0)
+    return result
 
-# Prediction function
+# Prediction logic
 def predict(text):
-    vec_text = vectorizer.transform([text])
-    return model.predict(vec_text)[0]
+    X = vectorizer.transform([text])
+    prediction = model.predict(X)[0]
+    return prediction
 
-# UI setup
-st.set_page_config(page_title="Scam Detector", page_icon="🕵️")
+# UI
+st.set_page_config(page_title="Scam Detector", page_icon="🔍")
+st.title("🔍 Scam Message Detector")
+st.markdown("Detect whether a message is a scam using a machine learning model.")
 
-# Load and display logo
-logo_path = "static/logo.png"
-if os.path.exists(logo_path):
-    st.image(Image.open(logo_path), width=80)
+with st.form("scam_form"):
+    user_input = st.text_area("Paste the message you received:", height=150)
+    submitted = st.form_submit_button("Analyze")
 
-st.title("🕵️ Scam Detector")
-st.write("Enter a message below to check if it's suspicious.")
-
-# User input
-user_input = st.text_area("📩 Message", height=150)
-
-if st.button("🔍 Analyze"):
-    if user_input.strip() == "":
-        st.warning("Please enter a message to check.")
+if submitted:
+    if not user_input.strip():
+        st.warning("Please enter a message to analyze.")
     else:
         with st.spinner("Analyzing..."):
-            result = predict_with_timeout(predict, [user_input], timeout=5)
-
-        if result == "scam":
-            st.error("⚠️ This message is likely a scam!")
-        elif result == "not-scam":
-            st.success("✅ This message appears to be safe.")
-        else:
-            st.warning(str(result))
+            try:
+                result = predict_with_timeout(predict, user_input, timeout=5)
+                if result == "scam":
+                    st.error("⚠️ This message is likely a **SCAM**.")
+                else:
+                    st.success("✅ This message appears to be **not a scam**.")
+            except TimeoutException:
+                st.error("⏱️ The model took too long to respond. Please try again later.")
