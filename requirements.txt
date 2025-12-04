@@ -2,5 +2,5 @@ pandas
 scikit-learn
 joblib
 streamlit
-streamlit-extras
+
 
