@@ -61,6 +61,3 @@ if submitted:
                     st.success("✅ This message appears to be **not a scam**.")
             except TimeoutException:
                 st.error("⏱️ The model took too long to respond. Please try again later.")
-                    st.success("✅ This message appears to be **not a scam**.")
-            except TimeoutException:
-                st.error("⏱️ The model took too long to respond. Please try again later.")
