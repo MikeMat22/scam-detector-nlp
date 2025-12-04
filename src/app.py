@@ -1,37 +1,58 @@
 import streamlit as st
-import joblib
-import re
+from joblib import load
+import os
+from streamlit_limiter import RateLimiter
+import concurrent.futures
+from PIL import Image
+
+# Rate limit: 5 requests per minute per IP
+RateLimiter(limit=5, period=60)
 
 # Load model and vectorizer
-model = joblib.load("models/logistic_model.pkl")
-vectorizer = joblib.load("models/tfidf_vectorizer.pkl")
+MODEL_PATH = "models/logistic_model.pkl"
+VECTORIZER_PATH = "models/tfidf_vectorizer.pkl"
 
-# Basic cleaning function
-def clean_text(text):
-    text = text.lower()
-    text = re.sub(r"[^\w\s]", "", text)
-    return text
+model = load(MODEL_PATH)
+vectorizer = load(VECTORIZER_PATH)
 
-# Streamlit app layout
-st.set_page_config(page_title="Scam Message Detector")
-st.title("💬 Scam Message Detector")
+# Timeout prediction wrapper
+def predict_with_timeout(predict_fn, args, timeout=5):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future = executor.submit(predict_fn, *args)
+        try:
+            return future.result(timeout=timeout)
+        except concurrent.futures.TimeoutError:
+            return "⚠️ Prediction timeout exceeded!"
 
-st.write("Enter a message below to check if it's a potential scam:")
+# Prediction function
+def predict(text):
+    vec_text = vectorizer.transform([text])
+    return model.predict(vec_text)[0]
 
-user_input = st.text_area("Message:", "")
+# UI setup
+st.set_page_config(page_title="Scam Detector", page_icon="🕵️")
 
-if st.button("Check Message"):
+# Load and display logo
+logo_path = "static/logo.png"
+if os.path.exists(logo_path):
+    st.image(Image.open(logo_path), width=80)
+
+st.title("🕵️ Scam Detector")
+st.write("Enter a message below to check if it's suspicious.")
+
+# User input
+user_input = st.text_area("📩 Message", height=150)
+
+if st.button("🔍 Analyze"):
     if user_input.strip() == "":
-        st.warning("Please enter a message.")
+        st.warning("Please enter a message to check.")
     else:
-        cleaned = clean_text(user_input)
-        vect_text = vectorizer.transform([cleaned])
-        prediction = model.predict(vect_text)[0]
+        with st.spinner("Analyzing..."):
+            result = predict_with_timeout(predict, [user_input], timeout=5)
 
-        if prediction == "scam":
-            st.error("🚨 This message is likely a SCAM.")
+        if result == "scam":
+            st.error("⚠️ This message is likely a scam!")
+        elif result == "not-scam":
+            st.success("✅ This message appears to be safe.")
         else:
-            st.success("✅ This message looks safe.")
-
-st.markdown("---")
-st.caption("Built by Michal · Logistic Regression · scikit-learn · Streamlit")
+            st.warning(str(result))
