@@ -73,3 +73,7 @@ python -m streamlit run src/app.py
 
 [Michal Matějček](https://www.linkedin.com/in/michal-matejcek/)
 AI Engineer · 🇨🇿 Made in Czech Republic
+
+⚠️ Disclaimer
+
+This application is for educational and informational purposes only. It provides automated predictions based on a trained ML model and should not be considered a guaranteed scam detection service.
