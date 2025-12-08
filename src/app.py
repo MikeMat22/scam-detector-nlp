@@ -6,20 +6,18 @@ from PIL import Image
 import numpy as np
 import os
 
-
-# Načtení modelu a vektorizeru
-
+# Load the model and vectorizer
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 model = joblib.load(os.path.join(BASE_DIR, "../models/logistic_model.pkl"))
 vectorizer = joblib.load(os.path.join(BASE_DIR, "../models/tfidf_vectorizer.pkl"))
 
-# Funkce pro vyčištění textu
+# Function to clean input text
 def clean_text(text):
     text = text.lower()
     text = re.sub(r"[^\w\s]", "", text)
     return text
 
-# Funkce pro predikci a výpočet confidence score
+# Function to predict and return confidence score
 def predict(text):
     cleaned = clean_text(text)
     vectorized = vectorizer.transform([cleaned])
@@ -27,15 +25,15 @@ def predict(text):
     confidence = np.max(model.predict_proba(vectorized))
     return prediction, confidence
 
-# Konfigurace aplikace
+# Streamlit app configuration
 st.set_page_config(page_title="Scam Detector", page_icon=":mag:")
 
-# Logo a titulek
+# Display logo and title
 logo = Image.open("assets/logo.png")
 st.image(logo, width=200)
 st.title("📡 Scam Message Detector")
 
-# Custom CSS
+# Custom CSS for styling
 st.markdown("""
     <style>
         textarea {
@@ -58,7 +56,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Vstupní pole
+# Text input area
 st.markdown("### 💬 Paste the message you received:")
 user_input = st.text_area(
     "", 
@@ -67,9 +65,9 @@ user_input = st.text_area(
     label_visibility="collapsed"
 )
 
-# Tlačítko
+# Analyze button
 st.markdown("### 🔍 Detect:")
-analyze_col = st.columns([1, 3, 1])[1]  # zarovnání na střed
+analyze_col = st.columns([1, 3, 1])[1]  # center alignment for the button
 
 with analyze_col:
     if st.button("🚀 Analyze Message", use_container_width=True):
@@ -77,7 +75,7 @@ with analyze_col:
             prediction, confidence = predict(user_input)
             time.sleep(1.2)
 
-        # Výsledek
+        # Display result with confidence score
         if prediction == "spam":
             st.error(f"🚨 Scam detected! Confidence: {confidence:.2f}")
             st.progress(int(confidence * 100))
