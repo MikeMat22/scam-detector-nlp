@@ -9,7 +9,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 
 # Data loading
-df = pd.read_csv("data/messages.csv")
+df = pd.read_csv("data/clean_messages.csv")
+df.dropna(subset=["message", "label"], inplace=True)
 
 # Text cleaning
 def clean_text(text):
