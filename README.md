@@ -1,16 +1,16 @@
-# 🛡️ AI Scam Message Detector (NLP + scikit-learn)
+# AI Scam Message Detector (NLP + scikit-learn)
 
 This project uses Natural Language Processing to classify short messages as **scam** or **legit** using classic machine learning techniques.
 
-✅ Live demo: [https://scam-detector-nlp.onrender.com](https://scam-detector-nlp.onrender.com)
+Live demo: [https://scam-detector-nlp.onrender.com](https://scam-detector-nlp.onrender.com)
 
 
-## 🔍 About
+## About
 
 Scam messages and phishing attacks are a growing problem in emails, SMS, and social platforms.  
 This AI tool analyzes text messages and predicts whether the message is likely a scam.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Python 3.11**
 - **scikit-learn** – model training
@@ -20,7 +20,7 @@ This AI tool analyzes text messages and predicts whether the message is likely a
 - **Joblib** – model saving/loading
 - **Render** – cloud deployment
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```  
 scam-detector-nlp/
@@ -36,19 +36,19 @@ scam-detector-nlp/
 └── README.md          # This file
 ```  
 
-## 📈 Future Ideas
+## Future Ideas
 
 - Deploy as an API
 - Build web frontend (e.g. Streamlit or Flask)
 - Train more advanced models (e.g. LSTM, Transformers)
 
-## 🔬 Sample Results
+## Sample Results
 Accuracy:    96%
 Precision:   99%
 Recall:      71%
 F1-score:    83%
 
-## 🚀 How to Run Locally
+## How to Run Locally
 ```
 1. Clone the repository:
 
@@ -69,11 +69,11 @@ pip install -r requirements.txt
 python -m streamlit run src/app.py
 ``` 
 
-## 📬 Author
+## Author
 
 [Michal Matějček](https://www.linkedin.com/in/michal-matejcek/)
-AI Engineer · 🇨🇿 Made in Czech Republic
+AI Engineer · Made in Czech Republic
 
-⚠️ Disclaimer
+Disclaimer
 
 This application is for educational and informational purposes only. It provides automated predictions based on a trained ML model and should not be considered a guaranteed scam detection service.
