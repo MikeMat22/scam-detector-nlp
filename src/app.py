@@ -31,7 +31,7 @@ st.set_page_config(page_title="Scam Detector", page_icon=":mag:")
 # Display logo and title
 logo = Image.open("assets/logo.png")
 st.image(logo, width=200)
-st.title("📡 Scam Message Detector")
+st.title(" Scam Message Detector")
 
 # Custom CSS for styling
 st.markdown("""
@@ -57,7 +57,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Text input area
-st.markdown("### 💬 Paste the message you received:")
+st.markdown("###  Paste the message you received:")
 user_input = st.text_area(
     "", 
     height=100, 
@@ -66,11 +66,11 @@ user_input = st.text_area(
 )
 
 # Analyze button
-st.markdown("### 🔍 Detect:")
+st.markdown("###  Detect:")
 analyze_col = st.columns([1, 3, 1])[1]  # center alignment for the button
 
 with analyze_col:
-    if st.button("🚀 Analyze Message", use_container_width=True):
+    if st.button(" Analyze Message", use_container_width=True):
         with st.spinner("Analyzing..."):
             prediction, confidence = predict(user_input)
             time.sleep(1.2)
